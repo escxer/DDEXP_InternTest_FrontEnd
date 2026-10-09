@@ -22,7 +22,6 @@ import {
   FieldSet,
 } from "@/components/ui/field"
 import { useForm, Controller, } from "react-hook-form"
-import { useFrames } from "next/dist/next-devtools/dev-overlay/utils/get-error-by-type"
 
 const inputClassName = "h-10 rounded-md border-slate-300 bg-white px-3 placeholder:text-slate-400"
 const roles = [{ label: "Company Admin", value: "Company Admin" }, { label: "User", value: "User"}]

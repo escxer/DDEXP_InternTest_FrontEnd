@@ -3,6 +3,7 @@ import { Noto_Sans_Thai } from "next/font/google";
 import NavBar from "@/components/NavBar";
 import { getCurrentAdmin } from "@/lib/current-admin";
 import "./globals.css";
+import SWRAuthProvider from "@/Provider/SWRAuthProvider";
 
 const notoSansThai = Noto_Sans_Thai({
   variable: "--font-noto-sans-thai",
@@ -24,8 +25,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${notoSansThai.variable} ${notoSansThai.className} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <SWRAuthProvider>
         <NavBar admin={admin} />
         {children}
+        </SWRAuthProvider>
       </body>
     </html>
   );

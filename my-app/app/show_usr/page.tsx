@@ -1,12 +1,35 @@
+"use client";
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+//import { users } from "@/lib/users"
 
-import { users } from "@/lib/users"
 
-export default async function DemoPage() {
+import { useUsers } from "@/hooks/use-users";
+import type { User } from "@/lib/users";
+
+export default function DemoPage() {
+
+  const { data, error, isLoading } = useUsers();
+
+  if (isLoading) return <p>Loading users...</p>;
+  if (error) return <p>Unable to load users.</p>;
+
+  const users: User[] = (data?.data ?? []).map((user) => ({
+    ...user,
+    role: user.role === "admin" ? "Company Admin" : "User",
+    status: user.banned ? "ปิดใช้งาน" : "เปิดใช้งาน",
+  }));
+
+  return (
+    // Keep your existing page JSX.
+    // Change the table to:
+    <DataTable columns={columns} data={users} />
+  );
+
+  /*
   const data = users
 
   return (
@@ -30,4 +53,7 @@ export default async function DemoPage() {
 
     </div>
   )
+  */
+
+
 }
