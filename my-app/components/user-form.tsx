@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import type { User } from "@/lib/users"
 import Link from "next/link"
 import { ArrowLeft, Eye, EyeOff } from "lucide-react"
@@ -21,10 +21,13 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, } from "react-hook-form"
+import { useFrames } from "next/dist/next-devtools/dev-overlay/utils/get-error-by-type"
 
 const inputClassName = "h-10 rounded-md border-slate-300 bg-white px-3 placeholder:text-slate-400"
 const roles = [{ label: "Company Admin", value: "Company Admin" }, { label: "User", value: "User"}]
+
+
 
 function PasswordField({ id, label, placeholder, masked = false }: {
   id: string
@@ -65,11 +68,28 @@ function PasswordField({ id, label, placeholder, masked = false }: {
     </Field>
   )
 }
+type FormValues = {
+  firstname: string,
+  lastname: string,
+  email: string,
+  company: string}
 
-export function UserForm({ user }: { user?: User }) {
+
+export function UserForm({ user, headerAction }: { user?: User; headerAction?: ReactNode }) {
+  const {control, handleSubmit} = useForm<FormValues>
+  ({defaultValues:{
+    firstname: user?.firstname ?? "",
+    lastname: user?.lastname ?? "",
+    email: user?.email ?? "",
+    company: user?.company ?? "",
+  },
+})
+
+
   return (
     <main lang="th" className="min-h-screen bg-slate-50/50 px-4 py-6">
       <header className="mb-6">
+        <div className="flex items-start justify-between gap-4">
         <Link
           href="/show_usr"
           className="inline-flex items-center gap-2 rounded-sm text-sm text-slate-600 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
@@ -77,58 +97,80 @@ export function UserForm({ user }: { user?: User }) {
           <ArrowLeft aria-hidden="true" className="size-4" />
           ย้อนกลับ
         </Link>
+        {headerAction}
+        </div>
         <h1 className="mt-3 text-2xl font-bold text-slate-900">{user ? "แก้ไขผู้ใช้งาน" : "เพิ่มผู้ใช้งาน"}</h1>
       </header>
-      <form onSubmit={(event) => event.preventDefault()}>
+
+      <form onSubmit={handleSubmit((data) => console.log(data))}>
         <FieldSet className="gap-6">
           <FieldLegend className="mb-6 text-base font-semibold">
             ข้อมูลผู้ใช้งาน
           </FieldLegend>
           <FieldGroup className="grid grid-cols-1 gap-x-3 gap-y-6 sm:grid-cols-2">
+
+          <Controller
+            name="firstname"
+            control={control}
+            render={({field}) => (
             <Field className="gap-1">
               <FieldLabel htmlFor="firstname" className="gap-0.5 text-sm text-slate-700">
                 ชื่อจริง<span aria-hidden="true" className="text-destructive">*</span>
               </FieldLabel>
               <Input
+                {...field}
                 id="firstname"
-                name="firstname"
-                defaultValue={user?.firstname}
                 autoComplete="given-name"
                 placeholder="กรอกชื่อจริง"
                 required
                 className="h-10 rounded-md border-slate-300 bg-white px-3 placeholder:text-slate-400"
               />
             </Field>
+            )}
+          />
+            
+           <Controller
+            name='lastname'
+            control={control}
+            render={({field}) => (
             <Field className="gap-1">
               <FieldLabel htmlFor="lastname" className="gap-0.5 text-sm text-slate-700">
                 นามสกุล<span aria-hidden="true" className="text-destructive">*</span>
               </FieldLabel>
               <Input
+                {...field}
                 id="lastname"
-                name="lastname"
-                defaultValue={user?.lastname}
                 autoComplete="family-name"
                 placeholder="กรอกนามสกุล"
                 required
                 className="h-10 rounded-md border-slate-300 bg-white px-3 placeholder:text-slate-400"
               />
             </Field>
+            )}
+           />
+        
           </FieldGroup>
         </FieldSet>
         <Separator className="my-6" />
+
+
         <FieldSet className="gap-6">
           <FieldLegend className="mb-6 text-base font-semibold">
             ตั้งค่าบัญชี
           </FieldLegend>
           <FieldGroup className="grid grid-cols-1 gap-x-3 gap-y-6 sm:grid-cols-2">
-            <Field className="gap-1">
+
+            <Controller
+              name="email"
+              control={control}
+              render={({field}) => (
+                <Field className="gap-1">
               <FieldLabel htmlFor="email" className="gap-0.5 text-sm text-slate-700">
                 อีเมล<span aria-hidden="true" className="text-destructive">*</span>
               </FieldLabel>
               <Input
+                {...field}
                 id="email"
-                name="email"
-                defaultValue={user?.email}
                 type="email"
                 autoComplete="email"
                 placeholder="กรอกอีเมล"
@@ -136,20 +178,30 @@ export function UserForm({ user }: { user?: User }) {
                 className={inputClassName}
               />
             </Field>
-            <Field className="gap-1">
+              )}
+            />
+            
+            <Controller
+              name="company"
+              control={control}
+              render = {({field}) => (
+                <Field className="gap-1">
               <FieldLabel htmlFor="company" className="gap-0.5 text-sm text-slate-700">
                 บริษัท<span aria-hidden="true" className="text-destructive">*</span>
               </FieldLabel>
               <Input
+                {...field}
                 id="company"
-                name="company"
-                defaultValue={user?.company}
                 autoComplete="organization"
                 placeholder="กรอกบริษัท"
                 required
                 className={inputClassName}
               />
             </Field>
+              )}
+            />
+
+            
             <Field className="gap-1 sm:col-span-2">
               <FieldLabel htmlFor="role" className="gap-0.5 text-sm text-slate-700">
                 สิทธิ์การใช้งาน<span aria-hidden="true" className="text-destructive">*</span>
@@ -166,11 +218,14 @@ export function UserForm({ user }: { user?: User }) {
                   ))}
                 </SelectContent>
               </Select>
+
             </Field>
             <PasswordField masked={!!user} id="password" label="รหัสผ่าน" placeholder="กรอกรหัสผ่าน" />
             <PasswordField masked={!!user} id="confirmPassword" label="ยืนยันรหัสผ่าน" placeholder="ยืนยันรหัสผ่าน" />
           </FieldGroup>
+
         </FieldSet>
+
         <footer className="mt-6 flex justify-end gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
           <Button
             variant="outline"
@@ -187,7 +242,9 @@ export function UserForm({ user }: { user?: User }) {
             {user ? "แก้ไข" : "เพิ่มผู้ใช้งาน"}
           </Button>
         </footer>
+
       </form>
+
     </main>
   )
 }

@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { UserForm } from "@/components/user-form"
 import { users } from "@/lib/users"
+import { DeleteUserButton } from "@/components/delete-user-button"
 
 type ConfigUserProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -13,7 +14,13 @@ async function SelectedUser({ searchParams }: ConfigUserProps) {
 
   if (!user) notFound()
 
-  return <UserForm key={user.id} user={user} />
+  return (
+    <UserForm
+      key={user.id}
+      user={user}
+      headerAction={<DeleteUserButton userId={user.id} />}
+    />
+  )
 }
 
 export default function ConfigUserPage(props: ConfigUserProps) {
